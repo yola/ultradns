@@ -1,39 +1,58 @@
 import json
+import abc
 
-from rest_api import UltraDNSRestAPI
 
-
-class UltraDNSClient(object):
-    def __init__(self, username, password, url='https://restapi.ultradns.com'):
-        """Initialize a API Client.
+class BaseDNSClient(object):
+    @abc.abstractmethod
+    def get_zones_of_account(self, account_name, q=None, **kwargs):
+        """Returns a list of zones for the specified account.
 
         Arguments:
-            username -- The username of the user
-            password -- The password of the user
+            account_name -- The name of the account.
 
         Keyword Arguments:
-            url -- Base URL for API.
+            q -- The search parameters, in a dict.  Valid keys are:
+                 name - substring match of the zone name
+                 zone_type - one of:
+                    PRIMARY
+                    SECONDARY
+                    ALIAS
+            sort -- The sort column used to order the list. Valid values for the sort field are:
+                    NAME
+                    ACCOUNT_NAME
+                    RECORD_COUNT
+                    ZONE_TYPE
+            reverse -- Whether the list is ascending(False) or descending(True)
+            offset -- The position in the list for the first returned element(0 based)
+            limit -- The maximum number of rows to be returned.
         """
-        self._api = UltraDNSRestAPI(username, password, url=url)
 
+    @abc.abstractmethod
+    def get_zone_metadata(self, zone_name):
+        """Get metadata for zone.
+
+        Arguments:
+            zone_name -- The name of the zone.  It must be unique.
+        """
+
+    @abc.abstractmethod
     def create_primary_zone(self, zone_name):
         """Creates a new primary zone.
 
         Arguments:
             zone_name -- The name of the zone.  It must be unique.
-
         """
-        self._api.create_primary_zone(zone_name)
 
+    @abc.abstractmethod
     def delete_zone(self, zone_name):
         """Deletes the specified zone.
 
         Arguments:
             zone_name -- The name of the zone being deleted.
         """
-        return self._api.delete_zone(zone_name)
 
-    def get_records(self, zone_name, q=None, **kwargs):
+    @abc.abstractmethod
+    def get_records(self, zone_name, rtype=None, q=None, **kwargs):
         """Returns the list of records in the specified zone.
 
         Arguments:
@@ -52,31 +71,8 @@ class UltraDNSClient(object):
             offset -- The position in the list for the first returned element(0 based)
             limit -- The maximum number of rows to be returned.
         """
-        return self._api.get_records(zone_name, q=q, **kwargs)
 
-    def get_records_by_type(self, zone_name, rtype, q=None, **kwargs):
-        """Returns the list of records in the specified zone of the specified type.
-
-        Arguments:
-            zone_name -- The name of the zone.
-            rtype -- The type of the record.  This can be numeric (1) or
-                     if a well-known name is defined for the type (A), you can use it instead.
-
-        Keyword Arguments:
-            q -- The search parameters, in a dict.  Valid keys are:
-                 ttl - must match the TTL for the rrset
-                 owner - substring match of the owner name
-                 value - substring match of the first BIND field value
-            sort -- The sort column used to order the list. Valid values for the sort field are:
-                    OWNER
-                    TTL
-                    TYPE
-            reverse -- Whether the list is ascending(False) or descending(True)
-            offset -- The position in the list for the first returned element(0 based)
-            limit -- The maximum number of rows to be returned.
-        """
-        return self._api.get_records_by_type(zone_name, rtype, q=q, **kwargs)
-
+    @abc.abstractmethod
     def create_record(self, zone_name, rtype, owner_name, rdata, ttl=None):
         """Creates a new record in the specified zone.
 
@@ -94,8 +90,8 @@ class UltraDNSClient(object):
         Keyword Arguments:
             ttl -- The TTL value for the record.
         """
-        return self._api.create_record(zone_name, rtype, owner_name, rdata, ttl=ttl)
 
+    @abc.abstractmethod
     def edit_record(self, zone_name, rtype, owner_name, rdata, ttl=None):
         """Updates an existing record in the specified zone.
 
@@ -113,8 +109,8 @@ class UltraDNSClient(object):
         Keyword Arguments:
             ttl -- The updated TTL value for the record.
         """
-        return self._api.edit_record(zone_name, rtype, owner_name, rdata, ttl=ttl)
 
+    @abc.abstractmethod
     def delete_record(self, zone_name, rtype, owner_name):
         """Deletes an record.
 
@@ -126,13 +122,15 @@ class UltraDNSClient(object):
                           If no trailing dot is supplied, the owner_name is assumed to be relative (foo).
                           If a trailing dot is supplied, the owner name is assumed to be absolute (foo.zonename.com.)
         """
-        return self._api.delete_record(zone_name, rtype, owner_name)
 
+    @abc.abstractmethod
     def start_transaction(self):
-        self._api.start_transaction()
+        """ Start transaction. """
 
+    @abc.abstractmethod
     def commit_transaction(self):
-        return self._api.commit_transaction()
+        """ Commit transaction. """
 
+    @abc.abstractmethod
     def rollback_transaction(self):
-        return self._api.rollback_transaction()
+        """ Rollback transaction. """
