@@ -107,7 +107,8 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
             self.get_account_details()[u'accounts'][0][u'accountName']
 
     def create_primary_zone(self, zone_name):
-        zone_properties = {'name': zone_name, 'accountName': self._account_name,
+        zone_properties = {'name': zone_name,
+                           'accountName': self._account_name,
                            'type': 'PRIMARY'}
         primary_zone_info = {'forceImport': True, 'createType': 'NEW'}
         zone_data = {'properties': zone_properties,
@@ -276,4 +277,3 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
     def _handle_transaction_error(self, response):
         errors = response.json()['errors']
         raise TransactionError([e['errorMessage'] for e in errors])
-
