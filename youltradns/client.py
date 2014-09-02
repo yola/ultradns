@@ -2,12 +2,11 @@ import requests
 import json
 
 from exceptions import (ZoneNotFoundError, ZoneAlreadyExistsError,
-                          PermissionDeniedError, DNSError, TransactionError,
-                          TransactionAlreadyInProgressError,
-                          NoActiveTransactionError, EmptyTransactionError,
-                          GetInsideTransactionError, RecordsNotFoundError,
-                          RecordAlreadyExistsError, RecordNotFoundError,
-                          AuthenticationError)
+                        PermissionDeniedError, DNSError, TransactionError,
+                        TransactionAlreadyInProgressError,
+                        NoActiveTransactionError, EmptyTransactionError,
+                        GetInsideTransactionError, RecordsNotFoundError,
+                        RecordAlreadyExistsError, AuthenticationError)
 from client_base import BaseDNSClient
 
 ERR_CODE_AUTH_TOKEN_EXPIRED = 60001
@@ -46,7 +45,7 @@ class ErrorHandlingMixin(object):
         if error_code in exceptions_map:
             raise exceptions_map[error_code](error_msg)
         else:
-            raise DNSError('%s: %s' %(error_code, error_msg))
+            raise DNSError('%s: %s' % (error_code, error_msg))
 
 
 class UltraDNSAuthentication(ErrorHandlingMixin):
@@ -75,8 +74,8 @@ class UltraDNSAuthentication(ErrorHandlingMixin):
         """
         json_body = response.json()
         return (response.status_code == requests.codes.UNAUTHORIZED and
-               isinstance(json_body, dict) and
-               json_body.get('errorCode') == ERR_CODE_AUTH_TOKEN_EXPIRED)
+                isinstance(json_body, dict) and
+                json_body.get('errorCode') == ERR_CODE_AUTH_TOKEN_EXPIRED)
 
     def refresh_auth_token(self):
         data = {'grant_type': 'refresh_token',
