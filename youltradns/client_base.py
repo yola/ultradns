@@ -17,13 +17,15 @@ class BaseDNSClient(object):
                     PRIMARY
                     SECONDARY
                     ALIAS
-            sort -- The sort column used to order the list. Valid values for the sort field are:
+            sort -- The sort column used to order the list. Valid values for
+                    the sort field are:
                     NAME
                     ACCOUNT_NAME
                     RECORD_COUNT
                     ZONE_TYPE
             reverse -- Whether the list is ascending(False) or descending(True)
-            offset -- The position in the list for the first returned element(0 based)
+            offset -- The position in the list for the first returned
+                      element(0 based)
             limit -- The maximum number of rows to be returned.
         """
 
@@ -63,12 +65,14 @@ class BaseDNSClient(object):
                  ttl - must match the TTL for the rrset
                  owner - substring match of the owner name
                  value - substring match of the first BIND field value
-            sort -- The sort column used to order the list. Valid values for the sort field are:
+            sort -- The sort column used to order the list. Valid values for
+                    the sort field are:
                     OWNER
                     TTL
                     TYPE
             reverse -- Whether the list is ascending(False) or descending(True)
-            offset -- The position in the list for the first returned element(0 based)
+            offset -- The position in the list for the first returned
+                      element(0 based)
             limit -- The maximum number of rows to be returned.
         """
 
@@ -77,15 +81,21 @@ class BaseDNSClient(object):
         """Creates a new record in the specified zone.
 
         Arguments:
-            zone_name -- The zone that will contain the new record.  The trailing dot is optional.
+            zone_name -- The zone that will contain the new record.
+                         The trailing dot is optional.
             rtype -- The type of the record.  This can be numeric (1) or
-                     if a well-known name is defined for the type (A), you can use it instead.
+                     if a well-known name is defined for the type (A), you can
+                     use it instead.
             owner_name -- The owner name for the record.
-                          If no trailing dot is supplied, the owner_name is assumed to be relative (foo).
-                          If a trailing dot is supplied, the owner name is assumed to be absolute (foo.zonename.com.)
+                          If no trailing dot is supplied, the owner_name is
+                          assumed to be relative (foo).
+                          If a trailing dot is supplied, the owner name is
+                          assumed to be absolute (foo.zonename.com.)
             rdata -- The BIND data for the record as a string.
-                     If there is a single resource record in the record, you can pass in the single string.
-                     If there are multiple resource records  in this record, pass in a list of strings.
+                     If there is a single resource record in the record, you
+                     can pass in the single string.
+                     If there are multiple resource records  in this record,
+                     pass in a list of strings.
 
         Keyword Arguments:
             ttl -- The TTL value for the record.
@@ -96,15 +106,21 @@ class BaseDNSClient(object):
         """Updates an existing record in the specified zone.
 
         Arguments:
-            zone_name -- The zone that contains the record.  The trailing dot is optional.
+            zone_name -- The zone that contains the record.  The trailing dot
+                         is optional.
             rtype -- The type of the record.  This can be numeric (1) or
-                     if a well-known name is defined for the type (A), you can use it instead.
+                     if a well-known name is defined for the type (A), you can
+                     use it instead.
             owner_name -- The owner name for the record.
-                          If no trailing dot is supplied, the owner_name is assumed to be relative (foo).
-                          If a trailing dot is supplied, the owner name is assumed to be absolute (foo.zonename.com.)
+                          If no trailing dot is supplied, the owner_name is
+                          assumed to be relative (foo).
+                          If a trailing dot is supplied, the owner name is
+                          assumed to be absolute (foo.zonename.com.)
             rdata -- The updated BIND data for the record as a string.
-                     If there is a single resource record in the record, you can pass in the single string.
-                     If there are multiple resource records  in this record, pass in a list of strings.
+                     If there is a single resource record in the record, you
+                     can pass in the single string.
+                     If there are multiple resource records  in this record,
+                     pass in a list of strings.
 
         Keyword Arguments:
             ttl -- The updated TTL value for the record.
@@ -115,12 +131,16 @@ class BaseDNSClient(object):
         """Deletes an record.
 
         Arguments:
-            zone_name -- The zone containing the record to be deleted.  The trailing dot is optional.
+            zone_name -- The zone containing the record to be deleted.
+                         The trailing dot is optional.
             rtype -- The type of the record.  This can be numeric (1) or
-                     if a well-known name is defined for the type (A), you can use it instead.
+                     if a well-known name is defined for the type (A), you can
+                     use it instead.
             owner_name -- The owner name for the record.
-                          If no trailing dot is supplied, the owner_name is assumed to be relative (foo).
-                          If a trailing dot is supplied, the owner name is assumed to be absolute (foo.zonename.com.)
+                          If no trailing dot is supplied, the owner_name is
+                          assumed to be relative (foo).
+                          If a trailing dot is supplied, the owner name is
+                          assumed to be absolute (foo.zonename.com.)
         """
 
     @abc.abstractmethod

@@ -60,7 +60,8 @@ class UltraDNSAuthentication(ErrorHandlingMixin):
     def authenticate(self):
         data = {'grant_type': 'password', 'username': self._user,
                 'password': self._password}
-        response = requests.post(self._url + '/v1/authorization/token', data=data)
+        response = requests.post(self._url + '/v1/authorization/token',
+                                 data=data)
         json_body = response.json()
         if response.ok:
             self.access_token = json_body[u'accessToken']
@@ -69,15 +70,19 @@ class UltraDNSAuthentication(ErrorHandlingMixin):
             self._handle_error(response)
 
     def is_auth_token_expired(self, response):
-        """Return True if response says that the authentication token is expired."""
+        """Return True if response says that the authentication token
+        is expired.
+        """
         json_body = response.json()
-        return response.status_code == requests.codes.UNAUTHORIZED and \
-               isinstance(json_body, dict) and \
-               json_body.get('errorCode') == ERR_CODE_AUTH_TOKEN_EXPIRED
+        return (response.status_code == requests.codes.UNAUTHORIZED and
+               isinstance(json_body, dict) and
+               json_body.get('errorCode') == ERR_CODE_AUTH_TOKEN_EXPIRED)
 
     def refresh_auth_token(self):
-        data = {'grant_type': 'refresh_token', 'refresh_token': self._refresh_token}
-        response = requests.post(self._url + '/v1/authorization/token', data=data)
+        data = {'grant_type': 'refresh_token',
+                'refresh_token': self._refresh_token}
+        response = requests.post(self._url + '/v1/authorization/token',
+                                 data=data)
         json_body = response.json()
         if response.ok:
             self.access_token = json_body[u'accessToken']
@@ -106,7 +111,8 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
         zone_properties = {'name': zone_name, 'accountName': self._account_name,
                            'type': 'PRIMARY'}
         primary_zone_info = {'forceImport': True, 'createType': 'NEW'}
-        zone_data = {'properties': zone_properties, 'primaryCreateInfo': primary_zone_info}
+        zone_data = {'properties': zone_properties,
+                     'primaryCreateInfo': primary_zone_info}
         self._post('/v1/zones', zone_data)
 
     def get_zones_of_account(self, account_name, q=None, **kwargs):
@@ -158,7 +164,8 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
                             '/' + owner_name)
 
     def get_account_details(self):
-        """Returns a list of all accounts of which the current user is a member."""
+        """Returns a list of all accounts of which the current user is a
+        member."""
         return self._get('/v1/accounts')
 
     def version(self):
@@ -171,7 +178,7 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
 
     def start_transaction(self):
         if self._transaction:
-            raise TransactionAlreadyInProgress()
+            raise TransactionAlreadyInProgressError()
         self._transaction_queries = []
         self._transaction = True
 
