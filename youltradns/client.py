@@ -220,7 +220,7 @@ class UltraDNSClient(ErrorHandlingMixin):
 
         record = {'rdata': rdata}
         if ttl:
-            record.update({'ttl': ttl})
+            record['ttl'] = ttl
 
         self._post('/v1/zones/' + zone_name + '/rrsets/' + rtype + '/' +
                    owner_name, record)
@@ -253,7 +253,7 @@ class UltraDNSClient(ErrorHandlingMixin):
 
         record = {'rdata': rdata}
         if ttl is not None:
-            record.update({'ttl': ttl})
+            record['ttl'] = ttl
 
         uri = '/v1/zones/' + zone_name + '/rrsets/' + rtype + '/' + owner_name
         return self._put(uri, record)
