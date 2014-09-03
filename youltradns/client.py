@@ -105,8 +105,6 @@ class UltraDNSClient(ErrorHandlingMixin):
 
         self._transaction = False
         self._transaction_queries = []
-        self._account_name = \
-            self.get_account_details()[u'accounts'][0][u'accountName']
 
     def create_primary_zone(self, zone_name):
         """Creates a new primary zone.
@@ -321,6 +319,10 @@ class UltraDNSClient(ErrorHandlingMixin):
 
     def _authenticate(self):
         self._auth.authenticate()
+
+    @property
+    def _account_name(self):
+        return self.get_account_details()[u'accounts'][0][u'accountName']
 
     def _is_authenticated(self):
         return self._auth.is_authenticated()
