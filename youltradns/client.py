@@ -399,4 +399,3 @@ class UltraDNSClient(ErrorHandlingMixin):
     def _handle_transaction_error(self, response):
         errors = response.json()['errors']
         raise TransactionError([e['errorMessage'] for e in errors])
-
