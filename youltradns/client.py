@@ -1,13 +1,13 @@
-import requests
 import json
+import requests
 
+from client_base import BaseUltraDNSClient
 from exceptions import (ZoneNotFoundError, ZoneAlreadyExistsError,
                         PermissionDeniedError, DNSError, TransactionError,
                         TransactionAlreadyInProgressError,
                         NoActiveTransactionError, EmptyTransactionError,
                         GetInsideTransactionError, RecordsNotFoundError,
                         RecordAlreadyExistsError, AuthenticationError)
-from client_base import BaseDNSClient
 
 ERR_CODE_AUTH_TOKEN_EXPIRED = 60001
 ERR_CODE_ZONE_ALREADY_EXISTS = 1802
@@ -68,6 +68,9 @@ class UltraDNSAuthentication(ErrorHandlingMixin):
         else:
             self._handle_error(response)
 
+    def is_authenticated(self):
+        return self.access_token
+
     def is_auth_token_expired(self, response):
         """Return True if response says that the authentication token
         is expired.
@@ -90,7 +93,7 @@ class UltraDNSAuthentication(ErrorHandlingMixin):
             raise AuthenticationError(json_body)
 
 
-class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
+class UltraDNSClient(BaseUltraDNSClient, ErrorHandlingMixin):
     _auth_class = UltraDNSAuthentication
 
     def __init__(self, username, password, url='https://restapi.ultradns.com'):
@@ -102,7 +105,6 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
 
         self._transaction = False
         self._transaction_queries = []
-        self._connect()
         self._account_name = \
             self.get_account_details()[u'accounts'][0][u'accountName']
 
@@ -203,8 +205,11 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
             raise NoActiveTransactionError()
         self._end_transaction()
 
-    def _connect(self):
+    def _authenticate(self):
         self._auth.authenticate()
+
+    def _is_authenticated(self):
+        return self._auth.is_authenticated()
 
     def _build_headers(self):
         return {'Content-type': 'application/json',
@@ -248,6 +253,9 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
                                     params=params, data=data,
                                     headers=self._build_headers())
 
+        if not self._is_authenticated():
+            self._authenticate()
+
         response = _http_request(method, url, params, data)
         if response.status_code == requests.codes.NO_CONTENT:
             return None
@@ -277,3 +285,4 @@ class UltraDNSClient(BaseDNSClient, ErrorHandlingMixin):
     def _handle_transaction_error(self, response):
         errors = response.json()['errors']
         raise TransactionError([e['errorMessage'] for e in errors])
+

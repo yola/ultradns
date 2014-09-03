@@ -1,7 +1,7 @@
 import abc
 
 
-class BaseDNSClient(object):
+class BaseUltraDNSClient(object):
     @abc.abstractmethod
     def get_zones_of_account(self, account_name, q=None, **kwargs):
         """Returns a list of zones for the specified account.
