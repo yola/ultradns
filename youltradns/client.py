@@ -127,12 +127,13 @@ class UltraDNSClient(ErrorHandlingMixin):
             account_name -- The name of the account.
 
         Keyword Arguments:
-            q -- The search parameters, in a dict.  Valid keys are:
-                 name - substring match of the zone name
-                 zone_type - one of:
-                    PRIMARY
-                    SECONDARY
-                    ALIAS
+            q -- The search query, string: "<key1>:<value1>,<key2>:<value2>,"
+                 Valid keys are:
+                     name - substring match of the zone name
+                     zone_type - one of:
+                        PRIMARY
+                        SECONDARY
+                        ALIAS
             sort -- The sort column used to order the list. Valid values for
                     the sort field are:
                     NAME
@@ -166,10 +167,11 @@ class UltraDNSClient(ErrorHandlingMixin):
             zone_name -- The name of the zone.
 
         Keyword Arguments:
-            q -- The search parameters, in a dict.  Valid keys are:
-                 ttl - must match the TTL for the rrset
-                 owner - substring match of the owner name
-                 value - substring match of the first BIND field value
+            q -- The search query, string: "<key1>:<value1>,<key2>:<value2>,".
+                 Valid keys are:
+                     ttl - must match the TTL for the rrset
+                     owner - substring match of the owner name
+                     value - substring match of the first BIND field value
             sort -- The sort column used to order the list. Valid values for
                     the sort field are:
                     OWNER
