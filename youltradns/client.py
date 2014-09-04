@@ -336,7 +336,7 @@ class UltraDNSClient(ErrorHandlingMixin):
         params = {}
         params.update(args)
         if q is not None:
-            params.update(q)
+            params['q'] = q
         return params
 
     def _get(self, url, params=None):
@@ -364,15 +364,13 @@ class UltraDNSClient(ErrorHandlingMixin):
         return {'method': method.upper(), 'uri': url, 'body': data or {}}
 
     def _do_call(self, method, url, params=None, data=None):
-        if data is None:
-            data = {}
-
         if not self._is_authenticated():
             self._authenticate()
 
         response = requests.request(method, self._base_url + url,
                                     params=params, data=data,
                                     headers=self._build_headers())
+
         if response.status_code == requests.codes.NO_CONTENT:
             return None
         elif self._is_error(response):
