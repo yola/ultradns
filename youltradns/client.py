@@ -339,7 +339,7 @@ class UltraDNSClient(ErrorHandlingMixin):
             params.update(q)
         return params
 
-    def _get(self, url, params={}):
+    def _get(self, url, params=None):
         if self._transaction:
             raise GetInsideTransactionError
         return self._do_call('GET', url, params=params)
@@ -360,19 +360,19 @@ class UltraDNSClient(ErrorHandlingMixin):
         else:
             return self._do_call(method, url, data=json.dumps(data))
 
-    def _get_transaction_query_body(self, method, url, data={}):
-        return {'method': method.upper(), 'uri': url, 'body': data}
+    def _get_transaction_query_body(self, method, url, data=None):
+        return {'method': method.upper(), 'uri': url, 'body': data or {}}
 
-    def _do_call(self, method, url, params=None, data={}):
-        def _http_request(method, url, params, data):
-            return requests.request(method, self._base_url + url,
-                                    params=params, data=data,
-                                    headers=self._build_headers())
+    def _do_call(self, method, url, params=None, data=None):
+        if data is None:
+            data = {}
 
         if not self._is_authenticated():
             self._authenticate()
 
-        response = _http_request(method, url, params, data)
+        response = requests.request(method, self._base_url + url,
+                                    params=params, data=data,
+                                    headers=self._build_headers())
         if response.status_code == requests.codes.NO_CONTENT:
             return None
         elif self._is_error(response):
