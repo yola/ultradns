@@ -120,19 +120,20 @@ class UltraDNSClient(ErrorHandlingMixin):
                      'primaryCreateInfo': primary_zone_info}
         self._post('/v1/zones', zone_data)
 
-    def get_zones_of_account(self, account_name, q=None, **kwargs):
+    def get_zones_of_account(self, account_name, query=None, **kwargs):
         """Returns a list of zones for the specified account.
 
         Arguments:
             account_name -- The name of the account.
 
         Keyword Arguments:
-            q -- The search parameters, in a dict.  Valid keys are:
-                 name - substring match of the zone name
-                 zone_type - one of:
-                    PRIMARY
-                    SECONDARY
-                    ALIAS
+            query -- The search query, string:
+                     "<key1>:<value1>,<key2>:<value2>,". Valid keys are:
+                         name - substring match of the zone name
+                         zone_type - one of:
+                            PRIMARY
+                            SECONDARY
+                            ALIAS
             sort -- The sort column used to order the list. Valid values for
                     the sort field are:
                     NAME
@@ -145,7 +146,7 @@ class UltraDNSClient(ErrorHandlingMixin):
             limit -- The maximum number of rows to be returned.
         """
         uri = '/v1/accounts/' + account_name + '/zones'
-        params = self._build_params(q, kwargs)
+        params = self._build_params(query, kwargs)
         return self._get(uri, params)
 
     def get_zone_metadata(self, zone_name):
@@ -159,17 +160,18 @@ class UltraDNSClient(ErrorHandlingMixin):
         """
         self._delete('/v1/zones/' + zone_name)
 
-    def get_records(self, zone_name, rtype=None, q=None, **kwargs):
+    def get_records(self, zone_name, rtype=None, query=None, **kwargs):
         """Returns the list of records in the specified zone.
 
         Arguments:
             zone_name -- The name of the zone.
 
         Keyword Arguments:
-            q -- The search parameters, in a dict.  Valid keys are:
-                 ttl - must match the TTL for the rrset
-                 owner - substring match of the owner name
-                 value - substring match of the first BIND field value
+            query -- The search query, string:
+                     "<key1>:<value1>,<key2>:<value2>,". Valid keys are:
+                         ttl - must match the TTL for the rrset
+                         owner - substring match of the owner name
+                         value - substring match of the first BIND field value
             sort -- The sort column used to order the list. Valid values for
                     the sort field are:
                     OWNER
@@ -183,7 +185,7 @@ class UltraDNSClient(ErrorHandlingMixin):
         uri = '/v1/zones/' + zone_name + '/rrsets'
         if rtype:
             uri += '/' + rtype
-        params = self._build_params(q, kwargs)
+        params = self._build_params(query, kwargs)
 
         try:
             return self._get(uri, params)['rrSets']
@@ -332,14 +334,14 @@ class UltraDNSClient(ErrorHandlingMixin):
                 'Accept': 'application/json',
                 'Authorization': 'Bearer ' + self._auth.access_token}
 
-    def _build_params(self, q, args):
+    def _build_params(self, query, args):
         params = {}
         params.update(args)
-        if q is not None:
-            params.update(q)
+        if query is not None:
+            params['q'] = query
         return params
 
-    def _get(self, url, params={}):
+    def _get(self, url, params=None):
         if self._transaction:
             raise GetInsideTransactionError
         return self._do_call('GET', url, params=params)
@@ -360,19 +362,17 @@ class UltraDNSClient(ErrorHandlingMixin):
         else:
             return self._do_call(method, url, data=json.dumps(data))
 
-    def _get_transaction_query_body(self, method, url, data={}):
-        return {'method': method.upper(), 'uri': url, 'body': data}
+    def _get_transaction_query_body(self, method, url, data=None):
+        return {'method': method.upper(), 'uri': url, 'body': data or {}}
 
-    def _do_call(self, method, url, params=None, data={}):
-        def _http_request(method, url, params, data):
-            return requests.request(method, self._base_url + url,
-                                    params=params, data=data,
-                                    headers=self._build_headers())
-
+    def _do_call(self, method, url, params=None, data=None):
         if not self._is_authenticated():
             self._authenticate()
 
-        response = _http_request(method, url, params, data)
+        response = requests.request(method, self._base_url + url,
+                                    params=params, data=data,
+                                    headers=self._build_headers())
+
         if response.status_code == requests.codes.NO_CONTENT:
             return None
         elif self._is_error(response):
