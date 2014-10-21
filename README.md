@@ -1,4 +1,4 @@
-youltradns
-==========
+UltraDNS
+========
 
-demands based client for UltraDNS' REST API
+Client for UltraDNS' REST API.
