@@ -46,7 +46,9 @@ class ErrorHandlingMixin(object):
             error_msg = json_body['errorMessage']
         else:
             error_code = ERR_HTTP
-            error_msg = 'HTTP-level error. Status code: %s; response body: %s' % (response.status_code, response.content)
+            error_msg = """
+HTTP-level error. HTTP code: %s; response body: %s""" % (
+                response.status_code, response.content)
 
         if error_code in exceptions_map:
             raise exceptions_map[error_code](error_msg)
