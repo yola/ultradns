@@ -34,7 +34,7 @@ class RecordsNotFoundError(DNSError):
     pass
 
 
-class HTTPLevelError(DNSError):
+class HTTPError(DNSError):
     pass
 
 

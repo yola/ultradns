@@ -8,7 +8,7 @@ from exceptions import (ZoneNotFoundError, ZoneAlreadyExistsError,
                         NoActiveTransactionError, EmptyTransactionError,
                         GetInsideTransactionError, RecordsNotFoundError,
                         RecordAlreadyExistsError, AuthenticationError,
-                        HTTPLevelError)
+                        HTTPError)
 
 ERR_CODE_AUTH_TOKEN_EXPIRED = 60001
 ERR_CODE_ZONE_ALREADY_EXISTS = 1802
@@ -17,7 +17,7 @@ ERR_CODE_PERMISSION_DENIED = 8001
 ERR_RECORDS_NOT_FOUND = 70002
 ERR_RECORD_ALREADY_EXISTS = 2111
 ERR_RECORD_NOT_FOUND = 56001
-ERR_HTTP = 111222333
+ERR_HTTP = 'http_error'
 
 exceptions_map = {ERR_CODE_PERMISSION_DENIED: PermissionDeniedError,
                   ERR_CODE_ZONE_NOT_FOUND: ZoneNotFoundError,
@@ -25,7 +25,7 @@ exceptions_map = {ERR_CODE_PERMISSION_DENIED: PermissionDeniedError,
                   ERR_RECORD_ALREADY_EXISTS: RecordAlreadyExistsError,
                   ERR_RECORDS_NOT_FOUND: RecordsNotFoundError,
                   ERR_RECORD_NOT_FOUND: RecordsNotFoundError,
-                  ERR_HTTP: HTTPLevelError}
+                  ERR_HTTP: HTTPError}
 
 
 class ErrorHandlingMixin(object):
@@ -46,9 +46,9 @@ class ErrorHandlingMixin(object):
             error_msg = json_body['errorMessage']
         else:
             error_code = ERR_HTTP
-            error_msg = """
-HTTP-level error. HTTP code: %s; response body: %s""" % (
-                response.status_code, response.content)
+            error_msg = (
+                'HTTP-level error. HTTP code: %s; response body: %s' % (
+                    response.status_code, response.content))
 
         if error_code in exceptions_map:
             raise exceptions_map[error_code](error_msg)
