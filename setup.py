@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='ultradns',
-    version='0.1.1',
+    version='0.1.2',
     description='UltraDNS Client',
     author='Yola',
     author_email='engineers@yola.com',

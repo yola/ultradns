@@ -7,7 +7,8 @@ from exceptions import (ZoneNotFoundError, ZoneAlreadyExistsError,
                         TransactionAlreadyInProgressError,
                         NoActiveTransactionError, EmptyTransactionError,
                         GetInsideTransactionError, RecordsNotFoundError,
-                        RecordAlreadyExistsError, AuthenticationError)
+                        RecordAlreadyExistsError, AuthenticationError,
+                        HTTPError)
 
 ERR_CODE_AUTH_TOKEN_EXPIRED = 60001
 ERR_CODE_ZONE_ALREADY_EXISTS = 1802
@@ -38,9 +39,13 @@ class ErrorHandlingMixin(object):
         if isinstance(json_body, list):
             error_code = json_body[0]['errorCode']
             error_msg = json_body[0]['errorMessage']
-        else:
+        elif isinstance(json_body, dict):
             error_code = json_body['errorCode']
             error_msg = json_body['errorMessage']
+        else:
+            raise HTTPError(
+                'HTTP-level error. HTTP code: %s; response body: %s' % (
+                    response.status_code, response.content))
 
         if error_code in exceptions_map:
             raise exceptions_map[error_code](error_msg)
@@ -75,10 +80,12 @@ class UltraDNSAuthentication(ErrorHandlingMixin):
         """Return True if response says that the authentication token
         is expired.
         """
-        json_body = response.json()
-        return (response.status_code == requests.codes.UNAUTHORIZED and
-                isinstance(json_body, dict) and
-                json_body.get('errorCode') == ERR_CODE_AUTH_TOKEN_EXPIRED)
+        if response.status_code == requests.codes.UNAUTHORIZED:
+            json_body = response.json()
+            return (isinstance(json_body, dict) and
+                    json_body.get('errorCode') == ERR_CODE_AUTH_TOKEN_EXPIRED)
+
+        return False
 
     def refresh_auth_token(self):
         data = {'grant_type': 'refresh_token',
@@ -375,7 +382,8 @@ class UltraDNSClient(ErrorHandlingMixin):
 
         if response.status_code == requests.codes.NO_CONTENT:
             return None
-        elif self._is_error(response):
+
+        if self._is_error(response):
             if self._auth.is_auth_token_expired(response):
                 self._auth.refresh_auth_token()
                 return self._do_call(method, url, params, data)

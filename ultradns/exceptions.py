@@ -34,6 +34,10 @@ class RecordsNotFoundError(DNSError):
     pass
 
 
+class HTTPError(DNSError):
+    pass
+
+
 class TransactionError(Exception):
     def __init__(self, errors=[]):
         self.errors = errors
@@ -56,4 +60,3 @@ class EmptyTransactionError(TransactionError):
 
 class GetInsideTransactionError(TransactionError):
     pass
-
