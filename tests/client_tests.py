@@ -22,7 +22,7 @@ class TestCreatePrimaryZone(ClientTestCase):
     @patch.object(ultradns.client.requests, 'request')
     def test_http_error_is_raised(self, post_mock, auth_mock):
         self._mock_response(post_mock, '', 504, content='')
-        auth_mock.return_value=True
+        auth_mock.return_value = True
         client = UltraDNSClient('user', 'password')
 
         with self.assertRaises(HTTPError) as exc:
