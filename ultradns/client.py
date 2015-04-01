@@ -17,15 +17,13 @@ ERR_CODE_PERMISSION_DENIED = 8001
 ERR_RECORDS_NOT_FOUND = 70002
 ERR_RECORD_ALREADY_EXISTS = 2111
 ERR_RECORD_NOT_FOUND = 56001
-ERR_HTTP = 'http_error'
 
 exceptions_map = {ERR_CODE_PERMISSION_DENIED: PermissionDeniedError,
                   ERR_CODE_ZONE_NOT_FOUND: ZoneNotFoundError,
                   ERR_CODE_ZONE_ALREADY_EXISTS: ZoneAlreadyExistsError,
                   ERR_RECORD_ALREADY_EXISTS: RecordAlreadyExistsError,
                   ERR_RECORDS_NOT_FOUND: RecordsNotFoundError,
-                  ERR_RECORD_NOT_FOUND: RecordsNotFoundError,
-                  ERR_HTTP: HTTPError}
+                  ERR_RECORD_NOT_FOUND: RecordsNotFoundError}
 
 
 class ErrorHandlingMixin(object):
@@ -45,8 +43,7 @@ class ErrorHandlingMixin(object):
             error_code = json_body['errorCode']
             error_msg = json_body['errorMessage']
         else:
-            error_code = ERR_HTTP
-            error_msg = (
+            raise HTTPError(
                 'HTTP-level error. HTTP code: %s; response body: %s' % (
                     response.status_code, response.content))
 
